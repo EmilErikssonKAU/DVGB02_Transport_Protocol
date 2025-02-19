@@ -1,5 +1,9 @@
+#ifndef AS
+#define AS
+
 #include "Sim_Engine.h"
 #include <stdbool.h>
+void printPacket(struct pkt packet);
 
 /* Function that calculates checksum of packet*/
 int getCheckSum(struct pkt packet);
@@ -12,3 +16,5 @@ bool correctSeqnumber(struct pkt packet, int seqnumber);
 
 /* Function that sets next expected sequence number */
 int nextSeqNumber(int seqnumber);
+
+#endif

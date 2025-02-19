@@ -12,11 +12,8 @@
 int seqnumA;
 float Atime;
 struct pkt sndpkt;
-
 bool waiting_for_ack = false;
-
-int front = 0, rear = -1, queue_size = 0;
-
+int front = 0, queue_size = 0;
 struct msg sendque[MAXQUESIZE];
 
 /* Shift queue one step to the left*/
@@ -36,7 +33,6 @@ void enqueue(struct msg message)
 {
   if (queue_size < MAXQUESIZE)
   {
-    // increment
     queue_size++;
 
     // place message at the back
@@ -44,7 +40,6 @@ void enqueue(struct msg message)
   }
   else
   {
-    // Alert user of dropped packet
     printf("Queue is full! Dropping packet.\n");
   }
 }
@@ -57,55 +52,59 @@ struct msg dequeue()
   queue_size--;
 
   // shift queue to prevent gaps
-  shiftqueue(sendque);
+  shiftqueue();
   return message;
 }
 
 /* Called from layer 5, passed the data to be sent to other side */
 void A_output(struct msg message)
 {
-  // Place message in queue if waiting for ACK
+
   if (waiting_for_ack)
   {
-    enqueue(message);
   }
+
   else
   {
+
     // waiting for ack state, (currently not mutex protected)
     waiting_for_ack = true;
 
     // set sequence number
-    sndpkt.seqnum = nextSeqNumber(seqnumA);
+    seqnumA = nextSeqNumber(seqnumA);
+    sndpkt.seqnum = seqnumA;
 
     // set ack number (-1)
     sndpkt.acknum = -1;
 
-    // copy payload
-    memcpy(sndpkt.payload, message.data, sizeof(sndpkt.payload));
+    // set payload
+    strcpy(sndpkt.payload, message.data);
 
     // set checksum
     sndpkt.checksum = getCheckSum(sndpkt);
 
-    // send packet to layer 3
-    tolayer3(A, sndpkt);
+    // printPacket(*pack);
 
     // start timer
-    Atime = 0;
     starttimer(A, Atime);
+
+    // send packet to layer 3
+    tolayer3(A, sndpkt);
   }
 }
 
 /* Called from layer 3, when a packet arrives for layer 4 */
 void A_input(struct pkt packet)
 {
+  printf("A recieves packet from layer3!!\n");
   // Not corrupt and correct sequencenumber
   if (notcorrupt(packet) && correctSeqnumber(packet, seqnumA))
   {
-    // allow for next message in queue to be handled
-    waiting_for_ack = false;
-
     // stop timer
     stoptimer(A);
+
+    // allow for next message in queue to be handled
+    waiting_for_ack = false;
   }
 
   // Corrupt or incorrect sequencenumber
@@ -115,7 +114,7 @@ void A_input(struct pkt packet)
     tolayer3(A, sndpkt);
 
     // reset timer
-    Atime = 0;
+    stoptimer(A);
     starttimer(A, Atime);
   }
 }
@@ -127,8 +126,7 @@ void A_timerinterrupt()
   tolayer3(0, sndpkt);
 
   // reset time
-  Atime = 0;
-  starttimer(0, Atime);
+  starttimer(A, Atime);
 }
 
 /* The following routine will be called once (only) before any other */
@@ -136,5 +134,8 @@ void A_timerinterrupt()
 void A_init()
 {
   seqnumA = 0;
-  Atime = 0;
+  Atime = 10.0;
+  sndpkt.acknum = 0;
+  sndpkt.seqnum = 0;
+  sndpkt.checksum = 0;
 }

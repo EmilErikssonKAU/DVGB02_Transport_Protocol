@@ -2,6 +2,12 @@
 #include <stdbool.h>
 #include <string.h>
 
+/* Prints packet contents*/
+void printPacket(struct pkt packet)
+{
+    printf("SEQNUM: %d\n ACKNUM: %d\n CHECKSUM %d\n PAYLOAD: %s\n", packet.seqnum, packet.acknum, packet.checksum, packet.payload);
+}
+
 /* Function that calculates checksum of packet*/
 int getCheckSum(struct pkt packet)
 {
@@ -24,7 +30,7 @@ int getCheckSum(struct pkt packet)
 bool notcorrupt(struct pkt packet)
 {
     // return 1 if sums match 0 otherwise
-    return !(packet.checksum == getCheckSum(packet));
+    return (packet.checksum == getCheckSum(packet));
 }
 
 /* Funciton that checks if sequence number of packet matches expected sequence number */
