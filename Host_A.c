@@ -14,36 +14,33 @@ int calculate_checksum(char payload[20]);
 /* Called from layer 5, passed the data to be sent to other side */
 void A_output( struct msg message){
 
-
-  float time  = 0;
-
-  printf("hje  msg; %s\n", message.data);
-
-  tolayer5(0, message.data);
-
+  float time  = 0;  
   struct pkt packet; 
 
+
+
   packet.seqnum = acknum++;
-
-
   packet.acknum = seqnum++;
-  
   packet.checksum = calculate_checksum(message.data);
 
   memcpy(packet.payload, message.data, sizeof(packet.payload));
 
-  
+ 
+ 
+  tolayer3(0, packet); 
   starttimer(0, time);
 
 
 
-  printf("checksum  %d\n", packet.checksum);
+  tolayer5(0, message.data);
 
-  printf("seqnum  %d\n", packet.seqnum);
-
-  printf("%s", packet.payload);
   
-  tolayer3(0, packet); 
+  
+//debug outout
+  //printf("%s", packet.payload);
+  //printf("checksum  %d\n", packet.checksum);
+  //printf("seqnum  %d\n", packet.seqnum);
+  //printf("hje  msg; %s\n", message.data);
 
 }
 
