@@ -96,11 +96,12 @@ void A_output(struct msg message)
 /* Called from layer 3, when a packet arrives for layer 4 */
 void A_input(struct pkt packet)
 {
-  printf("A recieves packet from layer3!!\n");
-  // Not corrupt and correct sequencenumber
+  // printf("A recieves packet from layer3!!\n");
+  //  Not corrupt and correct sequencenumber
   if (notcorrupt(packet) && correctSeqnumber(packet, seqnumA))
   {
-    // stop timer
+    // printf("Not corrupt and correct sequence number");
+    //  stop timer
     stoptimer(A);
 
     // allow for next message in queue to be handled
@@ -108,9 +109,10 @@ void A_input(struct pkt packet)
   }
 
   // Corrupt or incorrect sequencenumber
-  else if (notcorrupt(packet) && !correctSeqnumber(packet, seqnumA))
+  else if (!notcorrupt(packet) || !correctSeqnumber(packet, seqnumA))
   {
-    // resend packet
+    // printf("Not corrupt but incorrect sequence number");
+    //  resend packet
     tolayer3(A, sndpkt);
 
     // reset timer
@@ -134,7 +136,7 @@ void A_timerinterrupt()
 void A_init()
 {
   seqnumA = 0;
-  Atime = 10.0;
+  Atime = 50.0;
   sndpkt.acknum = 0;
   sndpkt.seqnum = 0;
   sndpkt.checksum = 0;
