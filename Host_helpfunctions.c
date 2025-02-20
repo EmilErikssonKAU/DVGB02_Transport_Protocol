@@ -39,6 +39,12 @@ bool correctSeqnumber(struct pkt packet, int seqnumber)
     return !(packet.seqnum == seqnumber);
 }
 
+/* Funciton that checks if ack number of packet matches expected ack number */
+bool correctAcknumber(struct pkt packet, int acknumber)
+{
+    return !(packet.acknum == acknumber);
+}
+
 /* Function that sets next expected sequence number */
 int nextSeqNumber(int seqnumber)
 {

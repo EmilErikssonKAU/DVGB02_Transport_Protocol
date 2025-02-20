@@ -61,7 +61,7 @@ void B_input(struct pkt packet)
   // If corrupt
   else if (!notcorrupt(packet))
   {
-    printf("Packet is corrupt!\n");
+    ;
   }
 }
 

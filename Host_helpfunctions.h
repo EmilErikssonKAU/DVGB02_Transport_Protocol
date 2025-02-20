@@ -17,4 +17,6 @@ bool correctSeqnumber(struct pkt packet, int seqnumber);
 /* Function that sets next expected sequence number */
 int nextSeqNumber(int seqnumber);
 
+bool correctAcknumber(struct pkt packet, int acknumber);
+
 #endif

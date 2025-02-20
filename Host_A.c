@@ -98,7 +98,7 @@ void A_input(struct pkt packet)
 {
   // printf("A recieves packet from layer3!!\n");
   //  Not corrupt and correct sequencenumber
-  if (notcorrupt(packet) && correctSeqnumber(packet, seqnumA))
+  if (notcorrupt(packet) && correctAcknumber(packet, (seqnumA + 1) % 2))
   {
     // printf("Not corrupt and correct sequence number");
     //  stop timer
@@ -109,7 +109,7 @@ void A_input(struct pkt packet)
   }
 
   // Corrupt or incorrect sequencenumber
-  else if (!notcorrupt(packet) || !correctSeqnumber(packet, seqnumA))
+  else if (!notcorrupt(packet) || !correctAcknumber(packet, (seqnumA + 1) % 2))
   {
     // printf("Not corrupt but incorrect sequence number");
     //  resend packet
