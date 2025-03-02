@@ -14,57 +14,12 @@ float Atime;
 struct pkt sndpkt;
 bool waiting_for_ack = false;
 int front = 0, queue_size = 0;
-struct msg sendque[MAXQUESIZE];
-
-/* Shift queue one step to the left*/
-void shiftqueue()
-{
-  // shift every element ot the left
-  for (int i = 0; i < queue_size - 1; i++)
-  {
-    sendque[i] = sendque[i + 1];
-  }
-  // Clear last element
-  memset(&sendque[queue_size - 1], 0, sizeof(struct msg));
-}
-
-/* Enqueue a message */
-void enqueue(struct msg message)
-{
-  if (queue_size < MAXQUESIZE)
-  {
-    queue_size++;
-
-    // place message at the back
-    sendque[queue_size] = message;
-  }
-  else
-  {
-    printf("Queue is full! Dropping packet.\n");
-  }
-}
-
-/* Dequeue a message */
-struct msg dequeue()
-{
-  // dequeue first message
-  struct msg message = sendque[0];
-  queue_size--;
-
-  // shift queue to prevent gaps
-  shiftqueue();
-  return message;
-}
 
 /* Called from layer 5, passed the data to be sent to other side */
 void A_output(struct msg message)
 {
 
-  if (waiting_for_ack)
-  {
-  }
-
-  else
+  if (!waiting_for_ack)
   {
 
     // waiting for ack state, (currently not mutex protected)
@@ -96,11 +51,9 @@ void A_output(struct msg message)
 /* Called from layer 3, when a packet arrives for layer 4 */
 void A_input(struct pkt packet)
 {
-  // printf("A recieves packet from layer3!!\n");
   //  Not corrupt and correct sequencenumber
   if (notcorrupt(packet) && correctAcknumber(packet, (seqnumA + 1) % 2))
   {
-    // printf("Not corrupt and correct sequence number");
     //  stop timer
     stoptimer(A);
 
@@ -111,7 +64,6 @@ void A_input(struct pkt packet)
   // Corrupt or incorrect sequencenumber
   else if (!notcorrupt(packet) || !correctAcknumber(packet, (seqnumA + 1) % 2))
   {
-    // printf("Not corrupt but incorrect sequence number");
     //  resend packet
     tolayer3(A, sndpkt);
 
